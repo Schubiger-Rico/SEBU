@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SmartShop V5</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400&family=Quicksand:wght@600;700&display=swap">
+<style>
+:root{--bg:#f2f5f3;--card:#fff;--ink:#14231e;--mute:#5d6e67;--line:#d9e1dd;--red:#c8453b;--yel:#c99a12;--grn:#2e9e57;--acc:#1f8a70;--onacc:#fff;--fs:16px;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1815;--card:#1a2622;--ink:#e8f0ec;--mute:#93a59d;--line:#2c3b36;--red:#e5766d;--yel:#e3b93f;--grn:#5dc783}}
+:root[data-theme="dark"]{--bg:#0f1815;--card:#1a2622;--ink:#e8f0ec;--mute:#93a59d;--line:#2c3b36;--red:#e5766d;--yel:#e3b93f;--grn:#5dc783}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:400 var(--fs)/1.3 Oswald,"Arial Narrow",sans-serif}
+*,*::before,*::after{box-sizing:inherit}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+#app{max-width:40em;margin:0 auto;padding:.75em .75em 5em}
+h1,h2{font-family:Quicksand,"Trebuchet MS",sans-serif;font-weight:700;margin:0}
+h1{font-size:1.6em}h2{font-size:1.15em;margin:1.2em 0 .5em}
+header{display:flex;align-items:center;justify-content:space-between;position:relative;margin-bottom:.6em}
+button,input,select{font:inherit;color:inherit}
+.r{border-radius:.7em}
+.btn{min-height:calc(var(--fs)*1.67);min-width:calc(var(--fs)*1.67);padding:0 .8em;border:1px solid var(--line);background:var(--card);border-radius:.7em;cursor:pointer}
+.btn.pri{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.btn:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.field{height:calc(var(--fs)*1.67);padding:0 .7em;border:1px solid var(--line);background:var(--card);border-radius:.7em;min-width:0}
+.add{display:grid;grid-template-columns:1fr 4em 5em auto;gap:.4em;margin-bottom:1em}
+.card{display:flex;align-items:center;gap:.5em;min-height:calc(var(--fs)*1.67);padding:.3em .4em .3em .7em;margin-bottom:.4em;background:var(--card);border:1px solid var(--line);border-radius:.7em}
+.card .nm{flex:1;min-width:0;overflow-wrap:anywhere}.card .q{color:var(--mute);white-space:nowrap}
+.card.done .nm{color:var(--mute)}
+.fire{border-color:var(--red);color:var(--red)}
+.fire.on{background:var(--grn);border-color:var(--grn);color:#fff}
+.menu{position:absolute;right:0;top:100%;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:.7em;padding:.3em;min-width:12em;box-shadow:0 .5em 1.5em #0003}
+.menu button{display:flex;gap:.6em;width:100%;text-align:left;border:0;background:none;padding:.5em .7em;border-radius:.5em;cursor:pointer}
+.menu button.cur{background:var(--acc);color:var(--onacc)}
+.menu.min button span:last-child{display:none}.menu.big{font-size:1.25em}
+.empty{padding:1.5em 1em;border:1px dashed var(--line);border-radius:.7em;color:var(--mute);text-align:center}
+.row{display:flex;align-items:center;justify-content:space-between;gap:1em;padding:.5em 0;border-bottom:1px solid var(--line)}
+.seg{display:flex;gap:.3em}.seg .btn.sel{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+input[type=range]{width:100%;accent-color:var(--acc)}
+input[type=color]{padding:0;width:calc(var(--fs)*2.5);cursor:pointer}
+.sw{display:flex;gap:.4em;flex-wrap:wrap;margin:.4em 0}
+.sw i{width:calc(var(--fs)*1.67);height:calc(var(--fs)*1.67);border-radius:.7em;border:2px solid var(--card);outline:1px solid var(--line);cursor:pointer}
+.mute{color:var(--mute)}.small{font-size:.85em}
+.ban{display:flex;align-items:center;justify-content:space-between;gap:.6em;padding:.5em .7em;margin-bottom:.6em;background:var(--card);border:1px solid var(--acc);border-radius:.7em}.sw .btn.sel{background:var(--acc);color:var(--onacc);border-color:var(--acc)}summary{cursor:pointer}
+.ov{position:fixed;inset:0;background:#000a;z-index:30;display:flex;align-items:flex-end;justify-content:center;padding:1em}.ov .card{display:block;max-width:30em;width:100%}
+.hl{position:relative;z-index:31;box-shadow:0 0 0 .25em var(--acc),0 0 0 100vmax #0009!important;border-radius:.7em}.tc{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:1em;display:flex;justify-content:center}.tc .card{display:block;max-width:30em;width:100%}textarea.field{height:8em;padding:.6em;width:100%}
+@keyframes pu{50%{box-shadow:0 0 0 .4em var(--grn)}}.pulse{animation:pu 1.4s 1}@media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+#toast{position:fixed;left:50%;bottom:calc(1.5em + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:.5em 1em;border-radius:.7em;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" role="status"></div>
+<script>
+(function(){
+var KEY='smartshop.v5';
+var DEF=function(){return{items:[],recent:[],favs:[],hist:[],mine:[],chains:{},ev:[],cev:null,ob:{done:false,type:'Privat',name:'',step:-1},set:{learn:true,cats:true,alim:'3',stm:'3',plan:'gratis',fs:16,theme:'auto',accent:'#1f8a70',mode:'normal',autoFav:true,gps:'off',radius:100,quiet:false,vib:false,openList:false}}};
+var S=load(),view='list',menu=false,editId=null,draft={n:'',q:'1',u:'Stk'},gpsMsg='',tt,cur=null,near=[],declined={},pend=null,stMsg='';
+var UNITS=['Stk','Pack','kg','g','l','ml'];
+var MENU=[['list','🛒','Einkaufsliste'],['favs','★','Favoriten'],['deals','🔥','Aktionen'],['ideas','💡','Ideen'],['settings','⚙','Einstellungen'],['ev','👥','Anlässe'],['stam','⭐','Stammartikel'],['ki','✨','Premium-KI']];
+var ACC=['#1f8a70','#2f6fd0','#8a4fd0','#d0502f','#c28a00','#d03f7a'];
+function load(){try{var r=JSON.parse(localStorage.getItem(KEY));if(r&&r.set){var d=DEF();Object.assign(d,r);d.set=Object.assign(DEF().set,r.set);return d}}catch(e){}return DEF()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function say(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show')},2200)}
+function ink(h){var n=parseInt(h.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return(.299*r+.587*g+.114*b)>150?'#10201a':'#fff'}
+function theme(){var r=document.documentElement,s=S.set;r.style.setProperty('--fs',s.fs+'px');r.style.setProperty('--acc',s.accent);r.style.setProperty('--onacc',ink(s.accent));
+if(s.theme==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',s.theme)}
+function find(a,n,u){n=n.trim().toLowerCase();return a.filter(function(x){return x.name.toLowerCase()===n&&(u===undefined||x.unit===u)})[0]}
+function fmt(i){return i.qty+' '+i.unit}
+function addItem(name,qty,unit){
+ name=name.trim();if(!name)return say('Bitte einen Produktnamen eingeben.');
+ qty=parseFloat(String(qty).replace(',','.'));if(!(qty>0))qty=1;var ce=S.set.learn!==false&&S.ev.filter(function(x){return x.id===S.cev})[0],rt=ce&&ce.rate[name];if(rt==='Zu wenig')qty=Math.round(qty*120)/100;else if(rt==='Zu viel')qty=Math.round(qty*80)/100;
+ var d=find(S.items,name,unit);
+ if(d){d.qty=Math.round((d.qty+qty)*100)/100;say('Zusammengeführt: '+esc(d.name)+' ('+fmt(d)+')')}
+ else S.items.push({id:uid(),name:name,qty:qty,unit:unit,fire:false});
+ save()}
+function check(id){
+ var i=S.items.filter(function(x){return x.id===id})[0];if(!i)return;
+ S.items=S.items.filter(function(x){return x.id!==id});
+ S.recent=S.recent.filter(function(x){return x.name.toLowerCase()!==i.name.toLowerCase()});
+ S.recent.unshift({id:uid(),name:i.name,qty:i.qty,unit:i.unit});S.recent=S.recent.slice(0,30);
+ S.hist.unshift({id:uid(),name:i.name,qty:i.qty,unit:i.unit,date:new Date().toISOString(),price:null,store:cur?cur.name:null,deal:i.fire,ev:S.cev});S.hist=S.hist.slice(0,500);
+ var f=find(S.favs,i.name);
+ if(f){f.qty=i.qty;f.unit=i.unit}else if(S.set.autoFav)S.favs.push({id:uid(),name:i.name,qty:i.qty,unit:i.unit});
+ save()}
+function R(){theme();var h='<header><h1>SmartShop</h1><button class="btn" data-a="menu" aria-label="Menü" aria-expanded="'+menu+'">•••</button>';
+ if(menu){h+='<nav class="menu '+(S.set.mode==='minimal'?'min':S.set.mode==='gross'?'big':'')+'">'+MENU.map(function(m){return'<button data-a="go" data-v="'+m[0]+'" class="'+(m[0]===view?'cur':'')+'"><span>'+m[1]+'</span><span>'+m[2]+'</span></button>'}).join('')+'</nav>'}
+ h+='</header>';
+ h+=!S.ob.done?vOb():view==='list'?vList():view==='favs'?vFavs():view==='settings'?vSet():vx();
+ document.getElementById('app').innerHTML=h+tour();hl()}
+var CH=['Migros','Coop','Lidl','Aldi','Denner','Spar','Volg'];
+function on(c){return S.chains[c]!==false}
+function dist(a,b,c,d){var r=Math.PI/180,x=(c-a)*r,y=(d-b)*r*Math.cos((a+c)/2*r);return Math.round(6371000*Math.sqrt(x*x+y*y))}
+function chainOf(t){var s=((t.brand||'')+' '+(t.name||'')+' '+(t.operator||'')).toLowerCase();for(var i=0;i<CH.length;i++)if(s.indexOf(CH[i].toLowerCase())>-1)return CH[i];return null}
+function locate(ok,err){if(!navigator.geolocation){err('GPS nicht verfügbar');return}navigator.geolocation.getCurrentPosition(function(p){ok(p.coords)},function(){err('Kein Zugriff auf den Standort')},{timeout:10000,enableHighAccuracy:true})}
+function search(c,done,err){
+ var r=Math.max(1000,S.set.radius),q='[out:json][timeout:15];nwr["shop"~"supermarket|convenience|discount"](around:'+r+','+c.latitude+','+c.longitude+');out center tags;';
+ fetch('https://overpass-api.de/api/interpreter',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(q)}).then(function(x){if(!x.ok)throw 0;return x.json()}).then(function(j){
+  var o=[];j.elements.forEach(function(e){var t=e.tags||{},ch=chainOf(t),la=e.lat||(e.center&&e.center.lat),lo=e.lon||(e.center&&e.center.lon);if(ch&&la&&lo)o.push({chain:ch,name:t.name||ch,lat:la,lon:lo,d:dist(c.latitude,c.longitude,la,lo)})});
+  o.sort(function(a,b){return a.d-b.d});done(o)}).catch(function(){err('Filialdaten nicht erreichbar')})}
+function setCur(f){var n=!cur||cur.name!==f.name;cur=f;pend=null;if(n){if(S.set.vib&&navigator.vibrate)navigator.vibrate(120);if(S.set.openList)view='list'}}
+function detect(manual){
+ if(S.set.gps==='off'&&!manual)return;
+ stMsg='Suche …';if(manual)R();
+ locate(function(c){
+  var mine=S.mine.map(function(m){return{chain:'Eigener Laden',name:m.name,d:dist(c.latitude,c.longitude,m.lat,m.lon)}});
+  search(c,function(o){near=o;
+   var all=mine.concat(o.filter(function(s){return on(s.chain)})).filter(function(s){return s.d<=S.set.radius}).sort(function(a,b){return a.d-b.d}),f=all[0];
+   stMsg=o.length+' Filialen im Umkreis';
+   if(!f)cur=null;else if(S.set.gps==='auto')setCur(f);else if(S.set.gps==='ask'&&!declined[f.name])pend=f;
+   R()},function(m){stMsg=m;R()})},function(m){stMsg=m;R()})}
+function banner(){
+ if(pend)return'<div class="ban"><span>Du scheinst bei <b>'+esc(pend.name)+'</b> zu sein ('+pend.d+' m).</span><div class="seg"><button class="btn pri" data-a="yes">Ja</button><button class="btn" data-a="no">Nein</button></div></div>';
+ if(cur)return'<div class="ban"><span>📍 <b>'+esc(cur.name)+'</b> · '+cur.d+' m</span><button class="btn" data-a="no" aria-label="Filiale verwerfen">✕</button></div>';
+ return''}
+function vStores(){
+ var h='<h2>Filialen</h2><div class="sw">'+CH.map(function(c){return'<button class="btn'+(on(c)?' sel':'')+'" data-a="chain" data-v="'+c+'">'+c+'</button>'}).join('')+'</div>'
+ +'<div class="row"><button class="btn" data-a="find">Filiale suchen</button><span class="mute small">'+esc(stMsg)+'</span></div>',g={};
+ near.forEach(function(s){if(on(s.chain))(g[s.chain]=g[s.chain]||[]).push(s)});
+ Object.keys(g).forEach(function(c){h+='<details class="card" style="display:block"><summary>'+c+' ('+g[c].length+')</summary>'+g[c].map(function(s){return'<div class="row small"><span>'+esc(s.name)+'</span><span class="mute">'+s.d+' m</span></div>'}).join('')+'</details>'});
+ h+='<h2>Eigene Läden</h2>';
+ S.mine.forEach(function(m){h+='<div class="card"><span class="nm">'+esc(m.name)+'</span><button class="btn" data-a="delmine" data-id="'+m.id+'" aria-label="Löschen">✕</button></div>'});
+ return h+'<div class="add" style="grid-template-columns:1fr auto"><input class="field" id="mn" placeholder="Name des Ladens"><button class="btn" data-a="addmine">Hier speichern</button></div>'}
+
+var DEALS=[['Migros','Milch',1.35,1,'l',-1,2],['Coop','Milch',1.2,1,'l',3,9],['Denner','Butter',2.1,.25,'kg',-2,1],['Coop','Brot',2.8,.5,'kg',-1,4],['Lidl','Äpfel',2.49,1,'kg',-3,0],['Aldi','Pasta',.95,.5,'kg',1,7],['Migros','Eier',3.2,6,'Stk',-1,3],['Coop','Kaffee',5.5,.25,'kg',0,5]].map(function(a){return{c:a[0],p:a[1],pr:a[2],q:a[3],u:a[4],s:a[5],e:a[6],v:a[2]/a[3]}});
+var REC=[['Spaghetti Bolognese',[['Spaghetti',100,'g'],['Hackfleisch',100,'g'],['Tomaten',150,'g']]],['Gemüsesuppe',[['Karotten',100,'g'],['Kartoffeln',150,'g'],['Lauch',1,'Stk']]],['Pfannkuchen',[['Mehl',60,'g'],['Milch',150,'ml'],['Eier',1,'Stk']]]];
+var TOUR=[['Einkaufsliste','Schreib oben ein Produkt hinein und tippe auf ＋. So behältst du den Überblick.'],['Abhaken','Mit ✓ wandert ein Produkt in „Letzte Produkte“ und lässt sich zurückholen.'],['Aktionsknopf 🔥','Rot: keine Aktion. Gelb: kommt bald. Grün: läuft jetzt. Tippe darauf, um das Produkt zu beobachten.'],['Menü •••','Hier findest du Favoriten, Aktionen, Ideen, Anlässe und mehr.'],['Einstellungen','Schriftgrösse, Farben und GPS stellst du nach deinem Geschmack ein.']];
+function dd(n){var x=new Date();x.setDate(x.getDate()+n);return x.toLocaleDateString('de-CH')}
+function dl(n){n=n.toLowerCase();return DEALS.filter(function(d){var p=d.p.toLowerCase();return n.indexOf(p)>-1||p.indexOf(n)>-1})}
+function fst(i){var a=0,f=0;dl(i.name).forEach(function(d){if(d.s<=0&&d.e>=0)a=1;else if(d.s>0)f=1});
+ if(a&&f)return'background:linear-gradient(90deg,var(--grn) 50%,var(--yel) 50%);color:#fff;border-color:var(--grn)';if(a)return'background:var(--grn);color:#fff;border-color:var(--grn)';if(f)return'background:var(--yel);color:#000;border-color:var(--yel)';return'border-color:var(--red);color:var(--red)'}
+function alarm(){var o='';S.items.forEach(function(i){if(i.fire)dl(i.name).forEach(function(d){if(d.s<=0&&d.e>=0)o+='<div class="ban"><span>🔥 <b>'+esc(i.name)+'</b>: '+d.c+' '+d.pr.toFixed(2)+' CHF, noch '+d.e+' Tg.</span></div>'})});return o}
+function pers(e){return e.adults+e.kids+e.seniors}
+function vx(){
+ if(!S.ob.done)return vOb();
+ if(view==='deals'){var l=DEALS.filter(function(d){return d.e>=0}).sort(function(a,b){return a.v-b.v}),h='<h2>Aktionen</h2><p class="mute small">Beispieldaten, noch keine echte Quelle. Sortiert nach tiefstem Preis pro Einheit.</p>';
+  l.slice(0,10).forEach(function(d){var n=near.filter(function(x){return x.chain===d.c})[0];h+='<div class="card"><span class="nm"><b>'+esc(d.p)+'</b> · '+d.c+'<br><span class="mute small">'+(d.s>0?'ab '+dd(d.s):'bis '+dd(d.e)+', noch '+d.e+' Tg.')+(n?' · '+n.d+' m':'')+'</span></span><span class="q">'+d.pr.toFixed(2)+'<br><span class="small">'+d.v.toFixed(2)+'/'+d.u+'</span></span></div>'});return h}
+ if(view==='ideas'){var e=S.ev.filter(function(x){return x.id===S.cev})[0],n=e?pers(e):2,h='<h2>Ideen</h2><p class="mute small">Portionen: '+n+(e?' (aus „'+esc(e.name)+'“)':'')+'</p>';
+  REC.forEach(function(r,k){h+='<div class="card" style="display:block"><b>'+r[0]+'</b><br><span class="mute small">'+r[1].map(function(z){return z[1]*n+' '+z[2]+' '+z[0]}).join(', ')+'</span><br><button class="btn" data-x="rec" data-k="'+k+'">Zutaten auf die Liste</button></div>'});return h}
+ if(view==='ev')return vEv();
+ if(view==='stam'){var c={},h='<h2>Stammartikel</h2>';S.hist.filter(function(x){return !S.cev||x.ev===S.cev}).forEach(function(x){var k=x.name.toLowerCase();(c[k]=c[k]||{n:x.name,c:0,q:x.qty,u:x.unit}).c++});
+  var l=Object.keys(c).map(function(k){return c[k]}).filter(function(x){return x.c>=+S.set.stm}).sort(function(a,b){return b.c-a.c});
+  if(!l.length)h+='<div class="empty">Produkte, die du mindestens 3-mal gekauft hast, erscheinen hier mit Schnellzugriff.</div>';
+  l.forEach(function(x){h+='<div class="card"><span class="nm">'+esc(x.n)+'</span><span class="q">'+x.c+'×</span><button class="btn pri" data-x="stadd" data-n="'+esc(x.n)+'" data-q="'+x.q+'" data-u="'+x.u+'">＋ Liste</button></div>'});return h}
+ if(view==='ki'){var h='<h2>Premium-KI</h2><div class="row"><span>Abo (Test)</span>'+seg('plan',[['gratis','Gratis'],['smart','Smart'],['premium','Premium']])+'</div>';
+  if(S.set.plan!=='premium')return h+'<div class="empty">Prognosen und Empfehlungen gehören zu Premium (CHF 2). Wähle oben „Premium“, um sie zu testen.</div>';
+  var m={};S.hist.forEach(function(x){var k=x.name.toLowerCase();(m[k]=m[k]||{n:x.name,t:[]}).t.push(new Date(x.date).getTime())});var f=0;
+  Object.keys(m).forEach(function(k){var t=m[k].t.sort(),n=t.length;if(n<2)return;var iv=(t[n-1]-t[0])/(n-1)/864e5,left=Math.round(iv-(Date.now()-t[n-1])/864e5);f=1;h+='<div class="card" style="display:block"><b>'+esc(m[k].n)+'</b>: '+(left>0?'läuft voraussichtlich in '+left+' Tagen aus':'wäre bald wieder dran')+'<br><span class="mute small">Warum: Du kaufst es im Schnitt alle '+iv.toFixed(1)+' Tage ('+n+' Käufe). Das ist eine Schätzung.</span></div>'});
+  if(!f)h+='<div class="empty">Für Prognosen braucht es mindestens 2 Käufe desselben Produkts.</div>';
+  var b='';S.items.forEach(function(i){var l=dl(i.name).filter(function(d){return d.e>=0}).sort(function(a,b){return a.v-b.v})[0];if(l)b+='<div class="card"><span class="nm">'+esc(i.name)+': '+l.c+'</span><span class="q">'+l.v.toFixed(2)+'/'+l.u+'</span></div>'});
+  return h+'<h2>Günstigste Aktion für deine Liste</h2>'+(b||'<div class="empty">Keine passende Aktion für deine Produkte.</div>')+'<p class="mute small">Beispieldaten. Empfehlungen sind Vorschläge, du entscheidest.</p>'}
+ return vSoon()}
+function vOb(){var o=S.ob;return'<h2>Willkommen</h2><p class="mute">SmartShop hilft. SmartShop entscheidet nicht.</p><div class="row"><span>Ich nutze es</span><div class="seg">'+['Privat','Geschäft','Verein'].map(function(t){return'<button class="btn'+(o.type===t?' sel':'')+'" data-x="otype" data-v="'+t+'">'+t+'</button>'}).join('')+'</div></div><div class="row"><span>Name (optional)</span><input class="field" id="on" value="'+esc(o.name)+'"></div><div class="row"><span>Schriftgrösse</span><span id="fsv">'+S.set.fs+' px</span></div><input type="range" id="fs" min="10" max="40" value="'+S.set.fs+'"><div class="row"><span>Design</span>'+seg('theme',[['light','Hell'],['dark','Dunkel'],['auto','Auto']])+'</div><p class="mute small">Datenschutz: Alle Daten bleiben auf deinem Gerät. Der Standort wird nur für die Filialsuche verwendet und nur, wenn du GPS einschaltest.</p><button class="btn pri" data-x="obdone">Los geht’s</button>'}
+function vEv(){var h='<h2>Anlässe</h2>',na='';
+ S.ev.forEach(function(e){var cur2=e.id===S.cev;h+='<div class="card" style="display:block'+(e.arch?';opacity:.6':'')+'"><b>'+esc(e.name)+'</b> · '+esc(e.type)+(cur2?' ✓':'')+'<br><span class="mute small">'+e.adults+' Erw., '+e.kids+' Kinder, '+e.seniors+' Senioren'+(e.budget?' · Budget '+esc(e.budget):'')+(e.place?' · '+esc(e.place):'')+'</span><div class="seg" style="margin-top:.4em;flex-wrap:wrap">'+
+  (e.arch?'<button class="btn" data-x="eact" data-id="'+e.id+'">Reaktivieren</button>':'<button class="btn" data-x="esel" data-id="'+e.id+'">Wählen</button><button class="btn" data-x="earch" data-id="'+e.id+'">Archivieren</button>')+'<button class="btn" data-x="etpl" data-id="'+e.id+'">Als Vorlage</button></div>';
+  if(cur2&&!e.arch){var seen={};S.hist.slice(0,40).forEach(function(x){if(seen[x.name.toLowerCase()])return;seen[x.name.toLowerCase()]=1;var r=e.rate[x.name]||'';h+='<div class="row small"><span>'+esc(x.name)+'</span><div class="seg">'+['Zu wenig','Genau richtig','Zu viel'].map(function(t){return'<button class="btn'+(r===t?' sel':'')+'" data-x="rate" data-id="'+e.id+'" data-n="'+esc(x.name)+'" data-v="'+t+'">'+t+'</button>'}).join('')+'</div></div>'})}
+  h+='</div>'});
+ if(!S.ev.length)h+='<div class="empty">Noch kein Anlass. Lege unten den ersten an, die Bewertungen bleiben pro Anlass getrennt.</div>';
+ return h+'<h2>Neuer Anlass</h2><div class="add" style="grid-template-columns:1fr 1fr"><input class="field" id="en1" placeholder="Name"><input class="field" id="en2" placeholder="Budget (optional)"><input class="field" id="en3" placeholder="Ort (optional)"><span></span><input class="field" id="ea" inputmode="numeric" placeholder="Erwachsene" value="2"><input class="field" id="ek" inputmode="numeric" placeholder="Kinder" value="0"><input class="field" id="es" inputmode="numeric" placeholder="Senioren" value="0"><button class="btn pri" data-x="enew">Anlegen</button></div>'}
+function tour(){if(S.ob.step===-1||!S.ob.done)return'';var k=S.ob.step;
+ if(k===-2)return'<div class="ov"><div class="card"><div style="width:100%"><b>Kurze Tour?</b><p>Ich zeige dir in 5 Schritten, wie SmartShop dir nützt.</p><div class="seg"><button class="btn pri" data-x="tgo">Ja, gern</button><button class="btn" data-x="tend">Später</button></div></div></div></div>';
+ return'<div class="ov"><div class="card"><div style="width:100%"><span class="mute small">Schritt '+(k+1)+' von '+TOUR.length+'</span><br><b>'+TOUR[k][0]+'</b><p>'+TOUR[k][1]+'</p><div class="seg"><button class="btn pri" data-x="tnext">'+(k===TOUR.length-1?'Fertig':'Weiter')+'</button><button class="btn" data-x="tend">Beenden</button></div></div></div></div>'}
+var X={tour:function(){S.ob.step=S.ob.step>=0?S.ob.step:0},tgo:function(){S.ob.step=0},tend:function(){if(S.ob.step>=0)say('Tour pausiert. Du kannst sie in den Einstellungen fortsetzen.');else S.ob.step=-1},tnext:function(){S.ob.step=S.ob.step+1>=TOUR.length?(say('Tour geschafft. Du bist startklar!'),S.ob.step=-1,-1):S.ob.step+1},
+ otype:function(el){S.ob.type=el.dataset.v},obdone:function(){var n=document.getElementById('on');S.ob.name=n?n.value:'';S.ob.done=true;S.ob.step=-2},
+ rec:function(el){REC[+el.dataset.k][1].forEach(function(z){var e=S.ev.filter(function(x){return x.id===S.cev})[0];addItem(z[0],z[1]*(e?pers(e):2),z[2])});say('Zutaten hinzugefügt')},
+ stadd:function(el){addItem(el.dataset.n,el.dataset.q,el.dataset.u);say('Zur Liste hinzugefügt')},
+ enew:function(){var g=function(i){return document.getElementById(i).value.trim()},n=function(i){return Math.max(0,parseInt(g(i))||0)};if(!g('en1')){say('Bitte einen Namen eingeben.');return}
+  var id=uid();S.ev.push({id:id,name:g('en1'),type:S.ob.type,budget:g('en2'),place:g('en3'),adults:n('ea'),kids:n('ek'),seniors:n('es'),arch:false,rate:{}});S.cev=id},
+ esel:function(el){S.cev=el.dataset.id},earch:function(el){var e=S.ev.filter(function(x){return x.id===el.dataset.id})[0];e.arch=true;if(S.cev===e.id)S.cev=null},eact:function(el){S.ev.filter(function(x){return x.id===el.dataset.id})[0].arch=false},
+ etpl:function(el){var e=S.ev.filter(function(x){return x.id===el.dataset.id})[0],c=JSON.parse(JSON.stringify(e)),y=/\d{4}/.exec(e.name);c.id=uid();c.arch=false;c.rate={};c.name=y?e.name.replace(y[0],+y[0]+1):e.name+' (neu)';S.ev.push(c);S.cev=c.id;say('Vorlage erstellt: '+c.name)},
+ rate:function(el){var e=S.ev.filter(function(x){return x.id===el.dataset.id})[0];e.rate[el.dataset.n]=e.rate[el.dataset.n]===el.dataset.v?'':el.dataset.v}};
+document.addEventListener('click',function(e){var el=e.target.closest('[data-x]');if(!el||!X[el.dataset.x])return;X[el.dataset.x](el);save();R()});
+
+TOUR=[['Einkaufsliste','Schreib ein Produkt in die markierte Zeile und tippe auf ＋. So behältst du den Überblick.','.add'],['Abhaken','Tippe auf ✓. Das Produkt wandert in „Letzte Produkte“ und lässt sich zurückholen.','[data-a="check"]'],['Aktionsknopf 🔥','Rot: keine Aktion. Gelb: kommt bald. Grün: läuft jetzt. Tippe darauf, um ein Produkt zu beobachten.','.fire'],['Menü','Öffne das Menü mit •••. Dort findest du Favoriten, Aktionen, Ideen und mehr.','[data-a="menu"]'],['Einstellungen','Tippe auf „Einstellungen“. Dort stellst du Schrift, Farben und GPS nach deinem Geschmack ein.','.menu [data-v="settings"]']];
+MENU.push(['fb','💬','Test & Feedback']);
+var tb={n:0,r:0},fl=false,miss=0;
+var OK=[function(){return S.items.length>tb.n},function(){return S.recent.length>tb.r},function(){return fl},function(){return menu},function(){return view==='settings'}];
+var FUN=['Fast! Aber der markierte Knopf wartet auf dich.','Nicht der, mein Lieber. Der leuchtende!','Gleich daneben ist auch vorbei.','Dieser Knopf ist heute nicht im Dienst.'];
+var END=['Listen-Legende','Meister:in der Milch','Einkaufs-Profi','Hamster-Experte'];
+function act(){return S.ob.done&&S.ob.step>=0&&!S.ob.paused}
+function tsnap(){tb={n:S.items.length,r:S.recent.length};fl=false}
+function tstart(f,t){S.ob.from=f;S.ob.to=t;S.ob.step=f;S.ob.paused=false;view='list';menu=false;editId=null;tsnap()}
+function tnext2(){var k=S.ob.step+1;if(k>(S.ob.to==null?4:S.ob.to)){S.ob.step=-1;say('Tour geschafft: '+END[Math.floor(Math.random()*END.length)]+'!')}else{S.ob.step=k;tsnap()}}
+function hl(){if(!act()||!TOUR[S.ob.step])return;var t=document.querySelector(TOUR[S.ob.step][2]);if(t){t.classList.add('hl');if(t.scrollIntoView)t.scrollIntoView({block:'center'})}}
+function tour(){var k=S.ob.step;if(!S.ob.done||k===-1||S.ob.paused)return'';
+ if(k===-2)return'<div class="ov"><div class="card"><div style="width:100%"><b>Kurze Tour?</b><p>Ich zeige dir in 5 Schritten, wie SmartShop dir nützt. Du probierst alles selbst aus.</p><div class="seg"><button class="btn pri" data-x="t0">Ja, gern</button><button class="btn" data-x="tend">Später</button></div></div></div></div>';
+ var F=S.ob.from||0,T=S.ob.to==null?4:S.ob.to;
+ return'<div class="tc"><div class="card"><div style="width:100%"><span class="mute small">Schritt '+(k-F+1)+' von '+(T-F+1)+'</span><br><b>'+TOUR[k][0]+'</b><p>'+TOUR[k][1]+'</p><div class="seg"><button class="btn" data-x="tskip">Überspringen</button><button class="btn" data-x="tend">Beenden</button></div></div></div></div>'}
+function vTour(){var o=S.ob;return'<h2>Einführung</h2>'+(o.step>=0?'<div class="row"><span>Tour pausiert bei Schritt '+(o.step+1)+'</span><button class="btn pri" data-x="tres">Fortsetzen</button></div>':'')+'<div class="seg" style="flex-wrap:wrap"><button class="btn" data-x="t0">Gesamttour neu starten</button><button class="btn" data-x="t1">Nur Liste</button><button class="btn" data-x="t2">Nur Menü und Einstellungen</button></div>'}
+function vProf(){return'<h2>Profil</h2><div class="row"><span>Ich nutze es</span><div class="seg">'+['Privat','Geschäft','Verein'].map(function(t){return'<button class="btn'+(S.ob.type===t?' sel':'')+'" data-x="otype" data-v="'+t+'">'+t+'</button>'}).join('')+'</div></div><div class="row"><span>Name</span><input class="field" id="pn" value="'+esc(S.ob.name)+'"></div>'}
+function vFb(){return'<h2>Test &amp; Feedback</h2><p class="mute small">Schreib auf, was nicht funktioniert oder fehlt. Kopiere den Text und schick ihn mir.</p><textarea class="field" id="fbt" placeholder="Was ist dir aufgefallen?"></textarea><div class="row"><button class="btn pri" data-x="fbcopy">Text kopieren</button></div>'}
+var _vx=vx;vx=function(){return S.ob.done&&view==='fb'?vFb():_vx()};
+X.t0=function(){tstart(0,4)};X.t1=function(){tstart(0,2)};X.t2=function(){tstart(3,4)};X.tres=function(){S.ob.paused=false;view='list';menu=false;tsnap()};
+X.tskip=function(){tnext2()};
+X.tend=function(){if(S.ob.step>=0){S.ob.paused=true;say('Tour pausiert. Fortsetzen geht in den Einstellungen.')}else S.ob.step=-1};
+X.obdone=function(){var n=document.getElementById('on');S.ob.name=n?n.value:'';S.ob.done=true;S.ob.step=-2};
+X.fbcopy=function(){var t=document.getElementById('fbt').value;if(!t.trim()){say('Bitte zuerst etwas schreiben.');return}try{navigator.clipboard.writeText(t).then(function(){say('Text kopiert')},function(){say('Kopieren nicht möglich')})}catch(e){say('Kopieren nicht möglich')}};
+document.addEventListener('click',function(e){if(!act())return;if(e.target.closest('.tc'))return;if(e.target.closest('.hl')){if(S.ob.step===2)fl=true;return}
+ e.stopPropagation();e.preventDefault();miss++;say(miss===1?'Das war nicht der markierte Knopf.':FUN[(miss-2)%FUN.length])},true);
+document.addEventListener('click',function(){setTimeout(function(){var k=S.ob.step;if(act()&&OK[k]&&OK[k]()){tnext2();save();R()}},40)});
+document.addEventListener('input',function(e){if(e.target.id==='pn'){S.ob.name=e.target.value;save()}});
+
+DEALS=[['Migros','Milch',1.35,1,'l',-1,2,1.75,6,0],['Coop','Milch Prix Garantie',1.05,1,'l',0,9,1.1,0,1],['Coop','Milch',1.2,1,'l',3,9,1.2,0,0],['Denner','Butter',2.1,.25,'kg',-2,1,2.6,0,0],['Coop','Brot',2.8,.5,'kg',-1,4,3.2,0,0],['Lidl','Äpfel',2.49,1,'kg',-3,0,2.49,0,0],['Aldi','Pasta',.95,.5,'kg',1,7,1.2,0,0],['Aldi','Pasta Eigenmarke',.79,.5,'kg',-1,6,.95,0,1],['Migros','Eier',3.2,6,'Stk',-1,3,3.9,12,0],['Coop','Kaffee',5.5,.25,'kg',0,5,6.9,0,0]].map(function(a){return{c:a[0],p:a[1],pr:a[2],q:a[3],u:a[4],s:a[5],e:a[6],n:a[7],bq:a[8],own:a[9],v:a[2]/a[3]}});
+REC.push(['Rösti mit Spiegelei',[['Kartoffeln',200,'g'],['Eier',1,'Stk'],['Butter',10,'g']]],['Älplermagronen',[['Hörnli',100,'g'],['Kartoffeln',100,'g'],['Rahm',50,'ml']]],['Birchermüesli',[['Haferflocken',40,'g'],['Joghurt',100,'g'],['Äpfel',1,'Stk']]],['Pizza',[['Pizzateig',1,'Stk'],['Tomaten',100,'g'],['Mozzarella',60,'g']]],['Fruchtsalat',[['Äpfel',1,'Stk'],['Bananen',1,'Stk'],['Orangen',1,'Stk']]]);
+var CAT={'Obst & Gemüse':['äpfel','apfel','banane','tomate','karotte','lauch','salat','kartoffel','orange'],'Milch & Eier':['milch','butter','käse','joghurt','eier','rahm','mozzarella'],'Brot & Backwaren':['brot','mehl','zopf','hörnli','pasta','spaghetti','haferflocken']};
+function cats(){var o={};S.items.forEach(function(i){var n=i.name.toLowerCase(),c='Übrige';Object.keys(CAT).forEach(function(k){if(CAT[k].some(function(w){return n.indexOf(w)>-1}))c=k});o[c]=(o[c]||0)+1});return Object.keys(o).map(function(k){return k+' ('+o[k]+')'}).join(' · ')}
+var _bn=banner;banner=function(){return _bn()+(cur&&S.set.cats!==false&&S.items.length?'<div class="ban"><span class="small">'+esc(cats())+'</span></div>':'')};
+function alarm(){var o='',n=0,day=new Date().toDateString();S.wh=S.wh||[];S.items.forEach(function(i){if(!i.fire)return;dl(i.name).forEach(function(d){if(d.s<=0&&d.e>=0&&d.pr<d.n&&n<+S.set.alim){n++;o+='<div class="ban"><span>🔥 <b>'+esc(i.name)+'</b>: '+d.c+' '+d.pr.toFixed(2)+' CHF, noch '+d.e+' Tg.</span></div>';var k=day+i.name+d.c;if(!S.wh.some(function(w){return w.k===k})){S.wh.unshift({k:k,t:i.name+': '+d.c+' '+d.pr.toFixed(2)+' CHF',date:day});S.wh=S.wh.slice(0,30);save()}}})});return o}
+function vExtra(){return'<h2>Weitere Einstellungen</h2><div class="row"><span>Max. Alarme pro Tag</span>'+seg('alim',[['1','1'],['3','3'],['5','5']])+'</div><div class="row"><span>Stammartikel ab Käufen</span>'+seg('stm',[['2','2'],['3','3'],['5','5']])+'</div>'+tog('cats','Kategorien bei erkannter Filiale')+tog('learn','Lernsystem aktiv')}
+function vDeals(){var l=DEALS.filter(function(d){return d.e>=0}).sort(function(a,b){return a.v-b.v}),best={},h='<h2>Aktionen</h2><p class="mute small">Beispieldaten, noch keine echte Quelle. Sortiert nach tiefstem Preis pro Einheit.</p>';
+ l.forEach(function(d){var k=d.p.split(' ')[0].toLowerCase();if(!best[k])best[k]=d});
+ function card(d){var n=near.filter(function(x){return x.chain===d.c})[0],g=d.pr<d.n,k=DEALS.indexOf(d),need=0;S.items.forEach(function(i){if(dl(i.name).indexOf(d)>-1)need+=i.qty});
+  return'<div class="card'+(d.s>=-1&&d.s<=0?' pulse':'')+'" style="align-items:flex-start"><span class="nm"><b>'+esc(d.p)+'</b> · '+d.c+(d.own?' · Eigenmarke':'')+(best[d.p.split(' ')[0].toLowerCase()]===d?' · günstigste':'')+'<br><span class="mute small">'+(d.s>0?'ab '+dd(d.s):'bis '+dd(d.e)+', noch '+d.e+' Tg.')+(n?' · '+n.d+' m':'')+'<br>'+(g?'−'+Math.round((1-d.pr/d.n)*100)+'% gegenüber '+d.n.toFixed(2):'Nicht günstiger als der Normalpreis, keine gute Aktion')+'</span>'+(d.bq?'<br><span class="small">Menge: benötigt '+need+', fehlt '+Math.max(0,d.bq-need)+' <button class="btn" data-x="qty" data-k="'+k+'">Menge übernehmen ('+d.bq+')</button></span>':'')+'</span><span class="q">'+d.pr.toFixed(2)+'<br><span class="small">'+d.v.toFixed(2)+'/'+d.u+'</span></span></div>'}
+ l.slice(0,10).forEach(function(d){h+=card(d)});
+ if(l.length>10)h+='<details><summary>Weitere Aktionen ('+(l.length-10)+')</summary>'+l.slice(10).map(card).join('')+'</details>';
+ h+='<h2>Beobachtungsliste</h2>';var w=S.items.filter(function(i){return i.fire});
+ h+=w.length?w.map(function(i){return'<div class="card"><span class="nm">'+esc(i.name)+'</span><span class="q">🔥</span></div>'}).join(''):'<div class="empty">Tippe auf der Liste auf 🔥, um ein Produkt zu beobachten.</div>';
+ if((S.wh||[]).length)h+='<p class="mute small">Verlauf der Alarme:</p>'+S.wh.slice(0,10).map(function(x){return'<div class="row small"><span>'+esc(x.t)+'</span><span class="mute">'+esc(x.date)+'</span></div>'}).join('');return h}
+var _vx2=vx;vx=function(){return S.ob.done&&view==='deals'?vDeals():_vx2()};
+function vEv2(){var e=S.ev.filter(function(x){return x.id===S.cev&&!x.arch})[0],h='',L=S.set.learn!==false;
+ if(e){e.pa=e.pa||{adults:e.adults,kids:e.kids,seniors:e.seniors};
+  h+='<h2>Details: '+esc(e.name)+'</h2><div class="row"><span>Anwesend</span><span>'+['adults','kids','seniors'].map(function(k,j){return['Erw.','Kinder','Senioren'][j]+' <button class="btn" data-x="pa" data-k="'+k+'" data-v="-1">−</button> '+e.pa[k]+' <button class="btn" data-x="pa" data-k="'+k+'" data-v="1">＋</button>'}).join(' ')+'</span></div>'+(S.ob.type==='Privat'?'<div class="row"><span>Namen</span><input class="field" id="enm" value="'+esc(e.names||'')+'" placeholder="Anna, Ben"></div>':'')+'<div class="row"><span>Hauptverantwortlich</span><input class="field" id="erh" value="'+esc(e.lead||'')+'"></div><div class="row"><span>Mitorganisator</span><input class="field" id="erm" value="'+esc(e.co||'')+'"></div><div class="seg" style="flex-wrap:wrap;margin-top:.4em"><button class="btn pri" data-x="esave2">Speichern</button><button class="btn" disabled>QR-Code/Cloud (vorbereitet)</button></div>'}
+ h+='<h2>Gelerntes</h2>'+tog('learn','Lernsystem aktiv');
+ if(L){var c={};S.hist.forEach(function(x){if(x.store)c[x.store]=(c[x.store]||0)+1});var t=Object.keys(c).sort(function(a,b){return c[b]-c[a]})[0];
+  if(t)h+='<div class="card" style="display:block">Bevorzugter Laden: <b>'+esc(t)+'</b><br><span class="mute small">Warum: '+c[t]+' deiner Einkäufe fanden dort statt.</span></div>';
+  S.ev.forEach(function(ev){Object.keys(ev.rate||{}).forEach(function(n){var r=ev.rate[n];if(!r)return;h+='<div class="card" style="display:block"><b>'+esc(n)+'</b> bei „'+esc(ev.name)+'“: '+(r==='Zu wenig'?'nächstes Mal 20 % mehr':r==='Zu viel'?'nächstes Mal 20 % weniger':'Menge beibehalten')+'<br><span class="mute small">Warum: Du hast es mit „'+r+'“ bewertet.</span> <button class="btn" data-x="ldel" data-id="'+ev.id+'" data-n="'+esc(n)+'">Vergessen</button></div>'})});
+  h+='<button class="btn" data-x="lclr">Alles Gelernte löschen</button>'}
+ return h}
+var _vEv=vEv;vEv=function(){return _vEv()+vEv2()};
+X.qty=function(el){var d=DEALS[+el.dataset.k],it=S.items.filter(function(i){return dl(i.name).indexOf(d)>-1})[0];if(it)it.qty=d.bq;else S.items.push({id:uid(),name:d.p,qty:d.bq,unit:d.u,fire:false});say('Menge übernommen: '+d.bq)};
+X.pa=function(el){var e=S.ev.filter(function(x){return x.id===S.cev})[0];e.pa[el.dataset.k]=Math.max(0,e.pa[el.dataset.k]+ +el.dataset.v)};
+X.esave2=function(){var e=S.ev.filter(function(x){return x.id===S.cev})[0],g=function(i){var n=document.getElementById(i);return n?n.value.trim():''};e.names=g('enm');e.lead=g('erh');e.co=g('erm');say('Gespeichert')};
+X.ldel=function(el){var e=S.ev.filter(function(x){return x.id===el.dataset.id})[0];delete e.rate[el.dataset.n]};
+X.lclr=function(){S.ev.forEach(function(e){e.rate={}});say('Gelerntes gelöscht')};
+function opts(sel){return UNITS.map(function(u){return'<option'+(u===sel?' selected':'')+'>'+u+'</option>'}).join('')}
+function vList(){
+ var h=banner()+alarm()+'<div class="add"><input class="field" id="dn" placeholder="Produkt hinzufügen" value="'+esc(draft.n)+'" autocomplete="off"><input class="field" id="dq" inputmode="decimal" value="'+esc(draft.q)+'" aria-label="Menge"><select class="field" id="du" aria-label="Einheit">'+opts(draft.u)+'</select><button class="btn pri" data-a="add">＋</button></div>';
+ if(!S.items.length)h+='<div class="empty">Deine Einkaufsliste ist leer. Schreib oben das erste Produkt hinein.</div>';
+ S.items.forEach(function(i){
+  if(editId===i.id)h+='<div class="card"><input class="field" style="flex:1" id="en" value="'+esc(i.name)+'"><input class="field" style="width:4em" id="eq" inputmode="decimal" value="'+i.qty+'"><select class="field" id="eu">'+opts(i.unit)+'</select><button class="btn pri" data-a="esave" data-id="'+i.id+'">OK</button></div>';
+  else h+='<div class="card"><button class="btn" data-a="check" data-id="'+i.id+'" aria-label="Abhaken">✓</button><span class="nm" data-a="edit" data-id="'+i.id+'">'+esc(i.name)+'</span><span class="q">'+esc(fmt(i))+'</span><button class="btn fire" style="'+fst(i)+'" data-a="fire" data-id="'+i.id+'" aria-label="Aktionssuche">🔥</button><button class="btn" data-a="fav" data-id="'+i.id+'" aria-label="Favorit">'+(find(S.favs,i.name)?'★':'☆')+'</button><button class="btn" data-a="del" data-id="'+i.id+'" aria-label="Löschen">✕</button></div>'});
+ h+='<h2>Letzte Produkte</h2>';
+ if(!S.recent.length)h+='<div class="empty">Abgehakte Produkte erscheinen hier und lassen sich zurückholen.</div>';
+ S.recent.slice(0,12).forEach(function(i){h+='<div class="card done"><span class="nm">'+esc(i.name)+'</span><span class="q">'+esc(fmt(i))+'</span><button class="btn" data-a="back" data-id="'+i.id+'">Zurückholen</button></div>'});
+ return h}
+function vFavs(){
+ var h='<h2>Favoriten</h2>';
+ if(!S.favs.length)h+='<div class="empty">Noch keine Favoriten. Markiere Produkte mit ☆ oder aktiviere automatische Favoriten in den Einstellungen.</div>';
+ S.favs.forEach(function(i){h+='<div class="card"><span class="nm">'+esc(i.name)+'</span><span class="q">'+esc(fmt(i))+'</span><button class="btn pri" data-a="favadd" data-id="'+i.id+'">＋ Liste</button><button class="btn" data-a="favdel" data-id="'+i.id+'" aria-label="Entfernen">✕</button></div>'});
+ h+='<h2>Verlauf</h2>';
+ if(!S.hist.length)h+='<div class="empty">Der Verlauf füllt sich, sobald du Produkte abhakst.</div>';
+ else h+='<div class="row"><span class="mute small">'+S.hist.length+' Einträge</span><button class="btn" data-a="clearh">Verlauf leeren</button></div>';
+ S.hist.slice(0,50).forEach(function(i){h+='<div class="card done"><span class="nm">'+esc(i.name)+'</span><span class="q">'+esc(fmt(i))+' · '+new Date(i.date).toLocaleDateString('de-CH')+'</span></div>'});
+ return h}
+function seg(k,vals){return'<div class="seg">'+vals.map(function(v){return'<button class="btn'+(S.set[k]===v[0]?' sel':'')+'" data-a="set" data-k="'+k+'" data-v="'+v[0]+'">'+v[1]+'</button>'}).join('')+'</div>'}
+function tog(k,l){return'<div class="row"><span>'+l+'</span>'+seg(k,[[true,'Ja'],[false,'Nein']]).replace(/data-v="(true|false)"/g,'data-v="$1" data-b="1"')+'</div>'}
+function vSet(){var s=S.set;
+ return vProf()+'<h2>Darstellung</h2><div class="row"><span>Schriftgrösse <b id="fsv">'+s.fs+' px</b></span></div><input type="range" id="fs" min="10" max="40" value="'+s.fs+'" aria-label="Schriftgrösse">'
+ +'<div class="row"><span>Design</span>'+seg('theme',[['light','Hell'],['dark','Dunkel'],['auto','Auto']])+'</div>'
+ +'<div class="row"><span>Menü</span>'+seg('mode',[['minimal','Minimal'],['normal','Normal'],['gross','Gross']])+'</div>'
+ +'<div class="row"><span>Akzentfarbe</span><input type="color" id="ac" value="'+s.accent+'" class="field" aria-label="Akzentfarbe"></div>'
+ +'<div class="sw">'+ACC.map(function(c){return'<i data-a="acc" data-v="'+c+'" style="background:'+c+'"></i>'}).join('')+'</div>'
+ +'<div class="card" style="margin-top:.6em"><span class="nm">Live-Vorschau</span><button class="btn pri">Button</button></div>'
+ +'<h2>Favoriten</h2>'+tog('autoFav','Automatische Favoriten')
+ +'<h2>GPS</h2><div class="row"><span>Modus</span>'+seg('gps',[['off','Aus'],['ask','Nachfragen'],['auto','Automatisch']])+'</div>'
+ +'<div class="row"><span>Radius <b id="rv">'+s.radius+' m</b></span></div><input type="range" id="rad" min="25" max="250" step="25" value="'+s.radius+'" aria-label="Radius">'
+ +tog('quiet','Lautlos schalten')+tog('vib','Vibration')+tog('openList','Liste öffnen')
+ +'<div class="row"><button class="btn" data-a="gps">Standort testen</button><span class="mute small">'+esc(gpsMsg)+'</span></div>'
+ +vStores()+vTour()+vExtra()+'<h2>Daten</h2><p class="mute small">Alles wird automatisch auf diesem Gerät gespeichert.</p><button class="btn" data-a="reset">Alle Daten löschen</button>'}
+function vSoon(){var d=view==='deals';return'<h2>'+(d?'Aktionen':'Ideen')+'</h2><div class="empty">'+(d?'Die Aktionssuche (Block 10/11) ist noch nicht gebaut.':'Rezepte und Ideen (Block 14) sind noch nicht gebaut.')+'</div>'}
+document.addEventListener('click',function(e){
+ var el=e.target.closest('[data-a]');
+ if(!el){if(menu){menu=false;R()}return}
+ var a=el.dataset.a,id=el.dataset.id,i;
+ if(a==='menu'){menu=!menu}
+ else if(a==='go'){view=el.dataset.v;menu=false;editId=null}
+ else if(a==='add'){var n=document.getElementById('dn').value,q=document.getElementById('dq').value,u=document.getElementById('du').value;
+  if(!n.trim()){say('Bitte einen Produktnamen eingeben.');return}
+  addItem(n,q,u);draft={n:'',q:'1',u:u};R();var f=document.getElementById('dn');if(f)f.focus();return}
+ else if(a==='check')check(id);
+ else if(a==='edit')editId=id;
+ else if(a==='esave'){i=S.items.filter(function(x){return x.id===id})[0];if(i){var nn=document.getElementById('en').value.trim(),qq=parseFloat(document.getElementById('eq').value.replace(',','.'));if(nn)i.name=nn;if(qq>0)i.qty=qq;i.unit=document.getElementById('eu').value;save()}editId=null}
+ else if(a==='fire'){i=S.items.filter(function(x){return x.id===id})[0];if(i){i.fire=!i.fire;save()}}
+ else if(a==='fav'){i=S.items.filter(function(x){return x.id===id})[0];if(i){var f2=find(S.favs,i.name);if(f2)S.favs=S.favs.filter(function(x){return x!==f2});else S.favs.push({id:uid(),name:i.name,qty:i.qty,unit:i.unit});save()}}
+ else if(a==='del'){S.items=S.items.filter(function(x){return x.id!==id});save()}
+ else if(a==='back'){i=S.recent.filter(function(x){return x.id===id})[0];if(i){addItem(i.name,i.qty,i.unit);S.recent=S.recent.filter(function(x){return x.id!==id});save()}}
+ else if(a==='favadd'){i=S.favs.filter(function(x){return x.id===id})[0];if(i){addItem(i.name,i.qty,i.unit);say('Zur Liste hinzugefügt')}}
+ else if(a==='favdel'){S.favs=S.favs.filter(function(x){return x.id!==id});save()}
+ else if(a==='clearh'){S.hist=[];save()}
+ else if(a==='set'){var v=el.dataset.v;S.set[el.dataset.k]=el.dataset.b?v==='true':v;save()}
+ else if(a==='acc'){S.set.accent=el.dataset.v;save()}
+ else if(a==='gps'){if(!navigator.geolocation){gpsMsg='GPS nicht verfügbar'}else{gpsMsg='Suche …';navigator.geolocation.getCurrentPosition(function(p){gpsMsg=p.coords.latitude.toFixed(4)+', '+p.coords.longitude.toFixed(4)+' (±'+Math.round(p.coords.accuracy)+' m)';if(view==='settings')R()},function(){gpsMsg='Kein Zugriff auf den Standort';if(view==='settings')R()},{timeout:8000})}}
+ else if(a==='find'){detect(true);return}
+ else if(a==='yes'){if(pend)setCur(pend)}
+ else if(a==='no'){var x=pend||cur;if(x)declined[x.name]=1;pend=null;cur=null}
+ else if(a==='chain'){var c2=el.dataset.v;S.chains[c2]=!on(c2);save()}
+ else if(a==='addmine'){var nm=document.getElementById('mn').value.trim();if(!nm){say('Bitte einen Namen eingeben.');return}locate(function(c){S.mine.push({id:uid(),name:nm,lat:c.latitude,lon:c.longitude});save();R()},function(m){say(m)});return}
+ else if(a==='delmine'){S.mine=S.mine.filter(function(x){return x.id!==id});save()}
+ else if(a==='reset'){if(el.dataset.s){S=DEF();view='list';save()}else{el.dataset.s='1';el.textContent='Wirklich löschen? Nochmals tippen';return}}
+ R()});
+document.addEventListener('input',function(e){var t=e.target,s=S.set;
+ if(t.id==='dn')draft.n=t.value;else if(t.id==='dq')draft.q=t.value;else if(t.id==='du')draft.u=t.value;
+ else if(t.id==='fs'){s.fs=+t.value;document.getElementById('fsv').textContent=s.fs+' px';theme();save()}
+ else if(t.id==='rad'){s.radius=+t.value;document.getElementById('rv').textContent=s.radius+' m';save()}
+ else if(t.id==='ac'){s.accent=t.value;theme();save()}});
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&(e.target.id==='dn'||e.target.id==='dq')){e.preventDefault();var b=document.querySelector('[data-a="add"]');if(b)b.click()}if(e.key==='Escape'&&menu){menu=false;R()}});
+R();detect(false);document.addEventListener('visibilitychange',function(){if(!document.hidden)detect(false)});
+})();
+</script>
+</body>
+</html>
